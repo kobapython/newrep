@@ -16,3 +16,5 @@
 """
 
 mac = "AAAA:BBBB:CCCC"
+resalt = bin(int(mac.replace(':', '').lower(), 16))[2:]
+print(resalt)
