@@ -30,3 +30,26 @@ Out[1]: '11111111111111111111111111110000'
 
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
+ip = input('Введите ip сеть: ')
+
+redip = ip[0:ip.find('/')].split('.')
+mask = ip[ip.find('/')+1:]
+
+mone = int(mask)
+mzero = 32 - mone
+mline = '1'*mone + '0'*mzero
+moct0, moct1, moct2, moct3 = mline[0:8], mline[8:16], mline[16:24], mline[24:32]
+
+template = '''
+Network:
+{0:<10}{1:<10}{2:<10}{3:<10}
+{0:08b}  {1:08b}  {2:08b}  {3:08b}
+
+Mask:
+/{fm}
+{4:<10}{5:<10}{6:<10}{7:<10}
+{4:08b}  {5:08b}  {6:08b}  {7:08b}
+'''
+resalt = template.format(int(redip[0]), int(redip[1]), int(redip[2]), int(redip[3]), int(moct0, 2), int(moct1, 2), int(moct2, 2), int(moct3, 2), fm=mask)
+print (resalt)
+
