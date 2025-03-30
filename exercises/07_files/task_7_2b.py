@@ -16,4 +16,21 @@
 
 """
 
+
+
+from sys import argv
+
+file_name = argv[1]
+file_write = argv[2]
+
 ignore = ["duplex", "alias", "configuration"]
+
+with open(file_name) as f, open(file_write, 'w') as fw:
+    for line in f:
+        if not line or '!' in line:
+            pass
+        elif "duplex" in line or "alias" in line or "configuration" in line:
+            pass
+        else:
+            fw.write(line)
+            

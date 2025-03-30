@@ -40,3 +40,21 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+lstore = []
+
+with open('CAM_table.txt') as f:
+    for line in f:
+        ls = line.split()
+        if len(ls) < 2:
+            continue 
+        elif ls[0][0].isdigit():
+            ls.pop(2)
+            ls[0] = int(ls[0])
+            lstore.append(ls)
+        else:
+            pass
+
+lsres = sorted(lstore)
+
+for tab in lsres:
+    print('{:<8}{:18}{:10}'.format(tab[0], tab[1], tab[2]))

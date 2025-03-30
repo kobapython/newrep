@@ -20,3 +20,36 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+"""
+          Mac Address Table
+-------------------------------------------
+
+Vlan    Mac Address       Type        Ports
+----    -----------       --------    -----
+ 100    01bb.c580.7000    DYNAMIC     Gi0/1
+ 200    0a4b.c380.7c00    DYNAMIC     Gi0/2
+ 300    a2ab.c5a0.700e    DYNAMIC     Gi0/3
+ 10     0a1b.1c80.7000    DYNAMIC     Gi0/4
+ 500    02b1.3c80.7b00    DYNAMIC     Gi0/5
+ 200    1a4b.c580.7000    DYNAMIC     Gi0/6
+ 300    0a1b.5c80.70f0    DYNAMIC     Gi0/7
+ 10     01ab.c5d0.70d0    DYNAMIC     Gi0/8
+ 1000   0a4b.c380.7d00    DYNAMIC     Gi0/9
+"""
+with open('CAM_table.txt') as f:
+    for line in f:
+        ls = line.split()
+        if len(ls) < 2:
+            continue 
+        elif ls[0][0].isdigit():
+            print('{:8}{:18}{:10}'.format(ls[0], ls[1], ls[3]))
+        else:
+            pass
+
+
+
+
+
+
+
+    
