@@ -25,3 +25,29 @@
 
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
+
+
+
+def get_int_vlan_map (config_filename):
+    daccess = {}
+    dtrunk = {}
+    ct = 0
+    with open(config_filename) as f:
+        for line in f:
+            if line.startswith('interface '):
+                key = str(line.split()[-1])
+                ct = 1
+            elif 'switchport access vlan' in line:
+                value = int(line.split()[-1])
+                daccess[key]=value
+                ct = 0
+            elif 'switchport trunk allowed vlan' in line:
+                valuet = [int(vls) for vls in(line.split()[-1].split(','))]
+                dtrunk[key]=valuet
+                ct = 0
+            elif 'duplex auto' in line and ct:
+                daccess[key]=1
+    result = (daccess, dtrunk)
+    return result
+
+print(get_int_vlan_map('config_sw2.txt'))
