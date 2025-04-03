@@ -60,3 +60,6 @@ def test_function_return_value():
     assert (
         correct_return_value == return_value
     ), "Функция возвращает неправильное значение"
+
+print('\n'.join(sys.path))
+print(__name__)
