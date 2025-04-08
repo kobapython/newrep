@@ -45,7 +45,6 @@ def create_network_map (filenames):
             text = f.read()
             diktt = parse_cdp_neighbors(text)
             starlink.update(diktt)
-            print(diktt)
     return starlink
 
 if __name__ == "__main__":
