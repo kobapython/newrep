@@ -87,11 +87,9 @@ infiles = [
 ]
 
 def unique_network_map(topology_dict):
-    tersh = topology_dict.copy()
     den = {}
     vals = list(topology_dict.values())
     keys = list(topology_dict.keys())
-    #print (vals)
     for i in keys:
         if i in vals:
             if topology_dict[i]:
@@ -102,13 +100,6 @@ def unique_network_map(topology_dict):
             den[i] = topology_dict[i]
     draw_topology(den)
     return den
-    
-
-    #unik = [ i for i in keys if not i in vals]
-    #print(vals)
-    #print(keys)
-    #print(unik)
-    
 
 
 if __name__ == "__main__":
