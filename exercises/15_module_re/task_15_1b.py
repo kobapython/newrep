@@ -28,3 +28,20 @@ IP-адреса, диапазоны адресов и так далее, так 
 а не ввод пользователя.
 
 """
+import re
+
+def get_ip_from_cfg(name):
+    with open(name) as line:
+        date = {}
+        f = re.finditer(r'interface (?P<int>\S+)|ip address (?P<ip>\S+) (?P<mask>\S+)',line.read())
+        for ll in f:
+            if ll.group('int'):
+                inter = ll.group('int')
+                spisok = []
+            elif ll.group('mask'):
+                spisok.append((ll.group('ip'), ll.group('mask')))
+                date[inter]=(spisok)
+        return date
+
+if __name__ == '__main__':
+    print (get_ip_from_cfg('config_r2.txt'))
