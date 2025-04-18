@@ -17,3 +17,24 @@ IP-адрес считается доступным, если выполнени
 
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 """
+import ipaddress
+import subprocess as sub
+
+
+
+spisok = ['8.8.4.4', '1.1.1.1', '1.1.1.3', '342.32.123.555', '172.21.41.128']
+
+
+def ping_ip_addresses(iplist):
+    active = []
+    unreachable = []
+    for ip in iplist:
+        pin = sub.run(['ping', '-c', '2', ip], stdout=sub.DEVNULL, stderr=sub.DEVNULL)
+        if pin.returncode == 0:
+            active.append(ip)
+        else:
+            unreachable.append(ip)
+    result = (active, unreachable)
+    return result
+
+print (ping_ip_addresses(spisok))
