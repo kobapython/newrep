@@ -31,4 +31,20 @@ object network LOCAL_10.1.9.5
 - перед остальными строками должен быть один пробел
 
 Во всех правилах для ASA интерфейсы будут одинаковыми (inside,outside).
+
 """
+
+import re
+
+
+def convert_ios_nat_to_asa(taram, param):
+    with open(taram) as f, open(param, 'w') as res:
+        result = []
+        for line in f:
+            st = re.sub(r'.*inside source (\w+) +(?P<prot>\w+) +(?P<ip>\S+) +(?P<port>\d+) +\S+ +\S+ (?P<dport>\d+)$', 
+            r'object network LOCAL_\3\n host \3\n nat (inside,outside) \1 interface service \2 \4 \5', line)
+            result.append(st)
+        res.writelines(result)
+
+t = convert_ios_nat_to_asa('cisco_nat_config.txt', 'result_for_asa.txt')
+

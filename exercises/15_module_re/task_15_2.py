@@ -20,4 +20,20 @@
 
 Проверить работу функции на примере файла sh_ip_int_br.txt.
 
+Loopback0                  10.1.1.1        YES manual up                    up
+Loopback100                100.0.0.1       YES manual up                    up
+
 """
+
+import re
+
+
+def parse_sh_ip_int_br(name):
+    with open(name) as f:
+        regex = r'(\S+\d+) +(\S+) +\w+ +\w+ +(\w+(?: down)?) +(\w+)'
+        result = [match.groups() for match in re.finditer(regex, f.read())]
+        return result
+
+
+if __name__ == '__main__':
+    print(parse_sh_ip_int_br('sh_ip_int_br.txt'))
