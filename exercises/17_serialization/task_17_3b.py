@@ -43,3 +43,25 @@
 > pip install graphviz
 
 """
+import yaml
+from draw_network_graph import draw_topology
+
+def transform_topology(arg):
+    with open(arg) as f:
+        template = yaml.safe_load(f)
+    form = {}
+    res = {}
+    for l1 in template:
+        for l2 in template[l1]:
+            for l3 in template[l1][l2]:
+                form[(l1,l2)]=(l3,template[l1][l2][l3])
+    for ril in form:
+        if not res:
+            res[ril]=form[ril]
+        elif not form[ril] in sorted(res):
+            res[ril]=form[ril]
+    draw_topology(res)
+    return res
+
+
+print (transform_topology('topology.yaml'))

@@ -44,8 +44,31 @@
 """
 
 import glob
+import re
+import csv
 
 sh_version_files = glob.glob("sh_vers*")
 # print(sh_version_files)
 
 headers = ["hostname", "ios", "image", "uptime"]
+
+def parse_sh_version(arg):
+    ios = re.search(r'Version (\S+), ', arg).group(1)
+    image = re.search(r'System image file is "(.*)"', arg).group(1)
+    uptime = re.search(r'router uptime is (.*)', arg).group(1)
+    resalt = (ios, image, uptime)
+    return resalt
+
+def write_inventory_to_csv(data_filenames, csv_filename):
+    with open (csv_filename, 'w') as c:
+        tabl = csv.writer(c)
+        tabl.writerow(headers)
+        for line in data_filenames:
+            hostname = re.search(r'sh_version_(\S+).txt', line).group(1)
+            with open(line) as f:
+                kort = parse_sh_version(f.read())
+            tabl.writerow((hostname,) + kort)
+
+            
+print (write_inventory_to_csv(sh_version_files,'aaatester.csv'))
+
