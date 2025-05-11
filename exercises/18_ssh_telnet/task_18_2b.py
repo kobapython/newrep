@@ -93,8 +93,45 @@ R1(config)#a
 % Ambiguous command:  "a"
 """
 
+import yaml
+from netmiko import (
+    ConnectHandler,
+    NetmikoTimeoutException,
+    NetmikoAuthenticationException,
+)
+from pprint import pprint
+import re
+
 # списки команд с ошибками и без:
 commands_with_errors = ["logging 0255.255.1", "logging", "a"]
 correct_commands = ["logging buffered 20010", "ip http server"]
 
 commands = commands_with_errors + correct_commands
+
+def send_config_commands (device, config_command, log=True):
+    oshibki = {}
+    correct = {}
+    try:
+        if log:
+            print ('Подключаюсь к ' +device['host'] +'...')
+        with ConnectHandler(**device) as ssh:
+            ssh.enable()
+            for line in config_command:
+                res = (ssh.send_config_set(line))
+                if '%' in res:
+                    err1 = re.search(r'\% (.*)', res).group(1)
+                    print(f'Команда "{line}" выполнилась с ошибкой "{err1}" на устройстве {device["host"]}')
+                    oshibki[line] = res
+                else:
+                    correct[line] = res
+        result = (correct, oshibki)
+                    
+        return result
+    except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
+        print(error)
+    
+if __name__ == "__main__":
+    with open ('devices.yaml') as fr:
+        reader = yaml.safe_load(fr)
+    for dev in reader:
+        print (send_config_commands(dev, commands))
