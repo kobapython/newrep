@@ -56,3 +56,56 @@ commands = {
     "192.168.100.1": ["sh ip int br", "sh int desc"],
     "192.168.100.2": ["sh int desc"],
 }
+
+
+from netmiko import ConnectHandler, NetMikoAuthenticationException
+
+from concurrent.futures import ThreadPoolExecutor
+import yaml
+import logging
+from pprint import pprint
+from datetime import datetime
+import time
+
+logging.getLogger('paramiko').setLevel(logging.WARNING)
+
+logging.basicConfig(
+    format = '%(threadName)s %(name)s %(levelname)s: %(message)s',
+    level=logging.INFO,
+)
+
+beg = datetime.now()
+def connect_dev (ust, coms):
+    try:
+        with ConnectHandler(**ust) as ssh:
+            ssh.enable()
+            res = ssh.send_command(coms)
+            prompt = ssh.find_prompt()
+        return f"{prompt}{coms}\n{res}\n"
+    except  NetMikoAuthenticationException as err:
+        logging.warning(err)
+
+def send_command_to_devices (devices, commands_dict, filename, limit=5):
+    future_list = []
+    with ThreadPoolExecutor(max_workers=limit) as executer:
+        for device in devices:
+            ll = commands_dict.get(device['host'])
+            for fcommand in ll:
+                future = executer.submit(connect_dev, device, fcommand)
+                future_list.append(future)
+    with open(filename, 'w') as wf:
+        for fut in future_list:
+            wf.write(fut.result())
+    timer = datetime.now()
+    return timer
+    
+if __name__ == "__main__":
+    with open('devices.yaml') as f:
+        dev = yaml.safe_load(f)
+    comd = "sh ip int br"
+    end = send_command_to_devices(dev, commands, 'showcomm.txt')
+    duration = end - beg
+    print (f"start {beg.time()}\nstop {end.time()}\n\nduration {duration}")
+
+    
+    

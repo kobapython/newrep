@@ -105,3 +105,43 @@ R3#
 
 Для выполнения задания можно создавать любые дополнительные функции.
 """
+import yaml
+from concurrent.futures import ThreadPoolExecutor
+from netmiko import ConnectHandler, NetMikoAuthenticationException
+from itertools import repeat
+
+
+def send_command_to(device, command):
+    with ConnectHandler(**device) as ssh:
+        ssh.enable()
+        result = ssh.send_command(command)
+        prompt = ssh.find_prompt()
+    return f'{prompt}{command}\n{result}'
+
+
+def send_config_to(device, command):
+    with ConnectHandler(**device) as ssh:
+        ssh.enable()
+        result = ssh.send_config_set (command, strip_prompt=False)
+    return result
+
+
+
+def send_commands_to_devices (devices, filename, *, show=None, config=None, limit=3):
+    with ThreadPoolExecutor(max_workers=limit) as executer:
+        if show and config:
+            raise ValueError('Можно вводить только один параметр')
+        elif show:
+            output = executer.map(send_command_to, devices, repeat(show))
+        elif config:
+            output = executer.map(send_config_to, devices, repeat(config))
+        with open(filename, 'w') as f:
+             for line in output:
+                 f.write(line)
+
+if __name__ == "__main__":
+    commandc = ['router ospf 55', 'network 0.0.0.0 255.255.255.255 area 0']
+    with open('devices.yaml') as f:
+        dev = yaml.safe_load(f)
+    print (send_commands_to_devices(dev, "resultfile.txt", show='show clock', ))
+

@@ -34,3 +34,45 @@ Ethernet0/1                unassigned      YES NVRAM  administratively down down
 
 Проверить работу функции на устройствах из файла devices.yaml
 """
+
+from netmiko import ConnectHandler, NetMikoAuthenticationException
+
+from concurrent.futures import ThreadPoolExecutor
+from itertools import repeat
+import yaml
+import logging
+import re
+from pprint import pprint
+
+logging.getLogger('paramiko').setLevel(logging.WARNING)
+
+logging.basicConfig(
+    format = '%(threadName)s %(name)s %(levelname)s: %(message)s',
+    level=logging.INFO,
+)
+#comm1, reline
+
+def connect_dev (ust, coms):
+    try:
+        with ConnectHandler(**ust) as ssh:
+            ssh.enable()
+            res = ssh.send_command(coms)
+            prompt = ssh.find_prompt()
+        return f"{prompt}{coms}\n{res}\n"
+    except  NetMikoAuthenticationException as err:
+        logging.warning(err)
+
+def send_show_command_to_devices (devices, command, filename, limit=3):
+    text = ""
+    with ThreadPoolExecutor(max_workers=limit) as executer:
+        result = executer.map(connect_dev, devices, repeat(command))
+    with open(filename, 'w') as wf:
+        for line in result:
+            wf.write(line)
+
+if __name__ == "__main__":
+    with open('devices.yaml') as f:
+        dev = yaml.safe_load(f)
+    comd = "sh ip int br"
+    print (send_show_command_to_devices(dev, comd, 'resipbri.txt'))
+    

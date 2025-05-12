@@ -1,0 +1,4 @@
+R1#show clock
+*23:12:42.448 UTC Tue May 6 2025R2#show clock
+*04:56:50.368 UTC Wed May 7 2025R3#show clock
+*04:21:09.540 UTC Wed May 7 2025

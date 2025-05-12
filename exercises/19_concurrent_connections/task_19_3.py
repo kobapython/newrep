@@ -40,6 +40,16 @@ router ospf 1
 Проверить работу функции на устройствах из файла devices.yaml и словаре commands
 """
 
+
+from netmiko import ConnectHandler, NetMikoAuthenticationException
+
+from concurrent.futures import ThreadPoolExecutor
+from itertools import repeat
+import yaml
+import logging
+import re
+from pprint import pprint
+
 # Этот словарь нужен только для проверки работа кода, в нем можно менять IP-адреса
 # тест берет адреса из файла devices.yaml
 commands = {
@@ -47,3 +57,40 @@ commands = {
     "192.168.100.1": "sh ip int br",
     "192.168.100.2": "sh int desc",
 }
+
+logging.getLogger('paramiko').setLevel(logging.WARNING)
+
+logging.basicConfig(
+    format = '%(threadName)s %(name)s %(levelname)s: %(message)s',
+    level=logging.INFO,
+)
+
+def connect_dev (ust, coms):
+    try:
+        with ConnectHandler(**ust) as ssh:
+            ssh.enable()
+            res = ssh.send_command(coms)
+            prompt = ssh.find_prompt()
+        return f"{prompt}{coms}\n{res}\n"
+    except  NetMikoAuthenticationException as err:
+        logging.warning(err)
+
+def send_command_to_devices (devices, commands_dict, filename, limit=3):
+    future_list = []
+    with ThreadPoolExecutor(max_workers=limit) as executer:
+        for device in devices:
+            fcommand = commands_dict[device['host']]
+            future = executer.submit(connect_dev, device, fcommand)
+            future_list.append(future)
+    with open(filename, 'w') as wf:
+        for fut in future_list:
+            wf.write(fut.result())
+
+if __name__ == "__main__":
+    with open('devices.yaml') as f:
+        dev = yaml.safe_load(f)
+    comd = "sh ip int br"
+    print (send_command_to_devices(dev, commands, 'showcomm.txt'))
+    
+
+
