@@ -116,7 +116,7 @@ def send_command_to(device, command):
         ssh.enable()
         result = ssh.send_command(command)
         prompt = ssh.find_prompt()
-    return f'{prompt}{command}\n{result}'
+    return f'{prompt}{command}\n{result}\n'
 
 
 def send_config_to(device, command):
@@ -124,7 +124,6 @@ def send_config_to(device, command):
         ssh.enable()
         result = ssh.send_config_set (command, strip_prompt=False)
     return result
-
 
 
 def send_commands_to_devices (devices, filename, *, show=None, config=None, limit=3):
@@ -144,4 +143,3 @@ if __name__ == "__main__":
     with open('devices.yaml') as f:
         dev = yaml.safe_load(f)
     print (send_commands_to_devices(dev, "resultfile.txt", show='show clock', ))
-
